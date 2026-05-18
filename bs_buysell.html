@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B&S — Buy & Sell</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Black+Han+Sans&family=Barlow:wght@400;500;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#7B2FBE;--purple2:#9B4DCA;--purple-light:#C084FC;--purple-dark:#4A1A75;
+  --black:#0D0D0D;--dark:#111;--card:#1A1A1A;--border:#2A2A2A;
+  --white:#F5F0FF;--gray:#888;--gray2:#555;
+  --accent:#C084FC;--yellow:#FFD700;
+  --radius:10px;--radius-lg:16px;
+}
+body{background:var(--black);color:var(--white);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* BRUSH TEXTURE */
+.brush{position:relative}
+.brush::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='60'%3E%3Cellipse cx='200' cy='30' rx='195' ry='22' fill='%237B2FBE' opacity='0.15'/%3E%3C/svg%3E") center/cover no-repeat;pointer-events:none;z-index:0}
+
+/* NAV */
+nav{background:var(--black);border-bottom:3px solid var(--purple);position:sticky;top:0;z-index:100;padding:0 1rem}
+.nav-inner{max-width:1100px;margin:auto;height:60px;display:flex;align-items:center;gap:1rem}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--white);letter-spacing:0.05em;flex:1}
+.logo span{color:var(--purple-light);text-shadow:0 0 20px var(--purple)}
+.nav-links{display:flex;gap:0.25rem;align-items:center}
+.nav-btn{background:none;border:none;color:#aaa;font-family:'Barlow',sans-serif;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;padding:0.45rem 0.8rem;border-radius:6px;transition:all 0.15s}
+.nav-btn:hover{color:var(--white);background:rgba(123,47,190,0.3)}
+.nav-btn-primary{background:var(--purple)!important;color:#fff!important;border:2px solid var(--purple-light)!important}
+.nav-btn-primary:hover{background:var(--purple2)!important;transform:translateY(-1px)}
+.cart-btn{position:relative}
+.cart-count{position:absolute;top:-5px;right:-5px;background:#ff3b3b;color:#fff;font-size:10px;font-weight:900;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;border:none;background:none}
+.hamburger span{display:block;width:22px;height:2px;background:var(--white);border-radius:2px}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:var(--dark);border-bottom:2px solid var(--purple);padding:1rem;z-index:99;flex-direction:column;gap:0.4rem}
+.mobile-menu.open{display:flex}
+.mobile-menu button{color:var(--white);font-family:'Barlow',sans-serif;font-weight:700;text-transform:uppercase;font-size:1rem;padding:0.75rem;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;text-align:left}
+.mobile-menu .mb-primary{background:var(--purple);border-color:var(--purple-light);margin-top:0.5rem}
+
+/* HERO */
+.hero{background:var(--dark);border-bottom:3px solid var(--purple);padding:2rem 1rem 1.5rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(123,47,190,0.35) 0%,transparent 70%);pointer-events:none}
+.hero-dots{position:absolute;right:0;top:0;width:120px;height:120px;background-image:radial-gradient(circle,var(--purple) 1.5px,transparent 1.5px);background-size:12px 12px;opacity:0.4}
+.hero-dots2{position:absolute;left:0;bottom:0;width:100px;height:100px;background-image:radial-gradient(circle,var(--purple-light) 1.5px,transparent 1.5px);background-size:12px 12px;opacity:0.25}
+.hero-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,12vw,8rem);line-height:0.9;color:var(--white);text-shadow:4px 4px 0 var(--purple),-2px -2px 0 var(--purple-dark);letter-spacing:-0.02em;position:relative;z-index:1}
+.hero-logo span{color:var(--purple-light)}
+.hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:0.3em;color:var(--purple-light);margin-bottom:1.5rem;position:relative;z-index:1}
+.hero-banner{background:var(--black);border:3px solid var(--purple);border-radius:var(--radius);padding:0.6rem 1.5rem;display:inline-block;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,4vw,2rem);letter-spacing:0.15em;color:var(--white);margin-bottom:1.5rem;position:relative;z-index:1}
+.hero-banner span{color:var(--purple-light)}
+.hero-features{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;position:relative;z-index:1}
+.hero-feat{background:rgba(123,47,190,0.15);border:1.5px solid rgba(123,47,190,0.5);border-radius:var(--radius);padding:0.6rem 1rem;display:flex;align-items:center;gap:0.5rem;font-weight:700;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.05em}
+.hero-feat .icon{font-size:1.3rem}
+.hero-cta{display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.5rem;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
+.btn-purple{background:var(--purple);color:#fff;border-color:var(--purple-light)}
+.btn-purple:hover{background:var(--purple2);transform:translateY(-2px)}
+.btn-outline{background:transparent;color:var(--white);border-color:var(--border)}
+.btn-outline:hover{border-color:var(--purple-light);color:var(--purple-light)}
+.social-bar{display:flex;justify-content:center;gap:1rem;margin-top:1.25rem;position:relative;z-index:1}
+.soc{display:flex;align-items:center;gap:0.4rem;font-size:0.8rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.05em}
+.soc .soc-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.soc-snap .soc-icon{background:#FFFC00}
+.soc-ig .soc-icon{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)}
+
+/* PAGES */
+.page{display:none;max-width:1100px;margin:auto;padding:1.25rem 1rem}
+.page.active{display:block}
+
+/* SECTION TITLE */
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.08em;color:var(--white);margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem}
+.sec-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,var(--purple),transparent)}
+.sec-count{font-family:'Barlow',sans-serif;font-size:0.8rem;font-weight:700;background:var(--purple);color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:0.05em}
+
+/* FILTERS */
+.filters-wrap{display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.25rem}
+.search-bar{display:flex;gap:0.5rem}
+.search-bar input{flex:1;background:var(--card);border:2px solid var(--border);color:var(--white);padding:0.6rem 1rem;border-radius:var(--radius);font-family:'Barlow',sans-serif;font-size:0.95rem;outline:none;transition:border 0.15s}
+.search-bar input:focus{border-color:var(--purple)}
+.search-bar input::placeholder{color:var(--gray2)}
+.search-bar button{background:var(--purple);color:#fff;border:none;padding:0.6rem 1.25rem;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.95rem;text-transform:uppercase;cursor:pointer;transition:background 0.15s}
+.search-bar button:hover{background:var(--purple2)}
+.filter-row{display:flex;gap:0.5rem;flex-wrap:wrap}
+.filter-chip{background:var(--card);border:2px solid var(--border);color:#aaa;padding:0.35rem 0.9rem;border-radius:999px;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.filter-chip:hover,.filter-chip.active{background:var(--purple);color:#fff;border-color:var(--purple-light)}
+
+/* GRID */
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem}
+.product-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:all 0.2s;position:relative}
+.product-card:hover{border-color:var(--purple);transform:translateY(-3px)}
+.product-img{width:100%;aspect-ratio:1/1;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;overflow:hidden}
+.product-img-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:6rem;opacity:0.1}
+.product-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.badge{position:absolute;top:8px;left:8px;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:900;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.badge-dispo{background:var(--purple);color:#fff}
+.badge-sold{background:#ff3b3b;color:#fff}
+.badge-res{background:#2563eb;color:#fff}
+.badge-new{background:var(--yellow);color:#000}
+.fav-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;transition:all 0.15s}
+.fav-btn.active,.fav-btn:hover{background:#ff3b3b}
+.product-info{padding:0.75rem}
+.product-brand{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple-light);margin-bottom:0.15rem}
+.product-name{font-weight:700;font-size:0.9rem;margin-bottom:0.4rem;line-height:1.2}
+.product-chips{display:flex;gap:0.3rem;margin-bottom:0.5rem;flex-wrap:wrap}
+.chip{background:#1f1f1f;border:1px solid var(--border);color:#aaa;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+.product-price-row{display:flex;align-items:center;justify-content:space-between}
+.product-price{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--purple-light);letter-spacing:0.03em}
+.add-btn{background:var(--purple);color:#fff;border:none;padding:0.35rem 0.8rem;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;text-transform:uppercase;cursor:pointer;transition:all 0.15s}
+.add-btn:hover{background:var(--purple2)}
+.add-btn:disabled{background:var(--gray2);cursor:not-allowed}
+.empty-state{grid-column:1/-1;text-align:center;padding:3rem;color:var(--gray)}
+.empty-state .e-icon{font-size:3rem;margin-bottom:0.75rem}
+
+/* SELL FORM */
+.sell-wrap{max-width:680px;margin:auto}
+.sell-header{margin-bottom:1.5rem}
+.sell-header h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:0.06em;line-height:1}
+.sell-header p{color:var(--gray);margin-top:0.25rem}
+.form-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem}
+.form-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.08em;color:var(--purple-light);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.fg{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.9rem}
+.fg label{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#aaa}
+.fg input,.fg select,.fg textarea{background:#111;border:2px solid var(--border);color:var(--white);padding:0.6rem 0.85rem;border-radius:var(--radius);font-family:'Barlow',sans-serif;font-size:0.95rem;outline:none;transition:border 0.15s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--purple)}
+.fg select option{background:#111}
+.fg textarea{resize:vertical;min-height:90px}
+.photo-zone{border:2px dashed var(--purple);border-radius:var(--radius-lg);padding:1.75rem;text-align:center;cursor:pointer;transition:all 0.15s;background:#111;position:relative}
+.photo-zone:hover{border-color:var(--purple-light);background:rgba(123,47,190,0.06)}
+.photo-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.photo-zone .pz-icon{font-size:2.5rem;margin-bottom:0.5rem}
+.photo-zone p{color:#aaa;font-size:0.9rem}
+.photo-zone strong{color:var(--purple-light)}
+.photo-previews{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem}
+.photo-preview{width:72px;height:72px;border-radius:var(--radius);object-fit:cover;border:2px solid var(--purple)}
+.size-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:0.4rem}
+.size-opt{background:#111;border:2px solid var(--border);color:#aaa;padding:0.45rem;border-radius:var(--radius);text-align:center;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;font-weight:700;text-transform:uppercase;transition:all 0.15s}
+.size-opt:hover,.size-opt.sel{background:var(--purple);color:#fff;border-color:var(--purple-light)}
+.cond-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+.cond-opt{background:#111;border:2px solid var(--border);padding:0.75rem;border-radius:var(--radius);cursor:pointer;transition:all 0.15s}
+.cond-opt:hover,.cond-opt.sel{border-color:var(--purple);background:rgba(123,47,190,0.1)}
+.cond-title{font-weight:700;font-size:0.9rem}
+.cond-desc{font-size:0.75rem;color:var(--gray);margin-top:0.15rem}
+.price-preview{background:#111;border:2px solid var(--border);border-radius:var(--radius);padding:1rem;margin-top:0.5rem}
+.pr-row{display:flex;justify-content:space-between;font-size:0.9rem;color:#aaa;padding:0.25rem 0}
+.pr-row.total{border-top:2px solid var(--border);margin-top:0.5rem;padding-top:0.7rem;color:var(--white);font-weight:700}
+.pr-row.total .amt{color:var(--purple-light);font-family:'Bebas Neue',sans-serif;font-size:1.2rem}
+.diff-row{display:flex;gap:0.5rem;margin-bottom:0.5rem}
+.diff-btn{flex:1;background:#111;border:2px solid var(--border);color:#aaa;padding:0.6rem;border-radius:var(--radius);font-family:'Barlow',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.4rem}
+.diff-btn:hover,.diff-btn.on{border-color:var(--purple);color:var(--purple-light);background:rgba(123,47,190,0.15)}
+.diff-btn.tg.on{border-color:#229ED9;color:#229ED9;background:rgba(34,158,217,0.1)}
+.diff-btn.dc.on{border-color:#5865F2;color:#5865F2;background:rgba(88,101,242,0.1)}
+.submit-btn{width:100%;padding:1rem;background:var(--purple);color:#fff;border:3px solid var(--purple-light);border-radius:var(--radius-lg);font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.1em;cursor:pointer;transition:all 0.2s;text-transform:uppercase}
+.submit-btn:hover{background:var(--purple2);transform:translateY(-2px)}
+
+/* CART */
+.cart-layout{display:grid;grid-template-columns:1fr 300px;gap:1.25rem;align-items:start}
+.cart-items-list{display:flex;flex-direction:column;gap:0.75rem}
+.cart-item{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);padding:0.9rem;display:flex;gap:0.9rem;align-items:center}
+.cart-item-img{width:68px;height:68px;background:#1a1a2e;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:2.5rem;flex-shrink:0;overflow:hidden}
+.cart-item-img img{width:100%;height:100%;object-fit:cover}
+.cart-item-info{flex:1}
+.ci-brand{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple-light)}
+.ci-name{font-weight:700;font-size:0.95rem}
+.ci-meta{font-size:0.78rem;color:#aaa;margin-top:0.1rem}
+.ci-price{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--purple-light);margin-top:0.3rem}
+.cart-rm{background:none;border:none;color:#aaa;cursor:pointer;font-size:1.2rem;padding:4px;transition:color 0.15s}
+.cart-rm:hover{color:#ff3b3b}
+.cart-summary-box{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;position:sticky;top:76px}
+.csb-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.06em;margin-bottom:1rem}
+.csb-row{display:flex;justify-content:space-between;font-size:0.9rem;color:#aaa;padding:0.25rem 0}
+.csb-total{display:flex;justify-content:space-between;border-top:2px solid var(--border);margin-top:0.75rem;padding-top:0.75rem;font-weight:700}
+.csb-total span:last-child{color:var(--purple-light);font-family:'Bebas Neue',sans-serif;font-size:1.2rem}
+.order-btn{width:100%;margin-top:1rem;padding:0.85rem;background:var(--purple);color:#fff;border:2px solid var(--purple-light);border-radius:var(--radius);font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.15s}
+.order-btn:hover{background:var(--purple2)}
+.contact-box{margin-top:1rem;padding:0.9rem;background:#111;border-radius:var(--radius);border:1px solid var(--border)}
+.contact-box p{font-size:0.75rem;color:#aaa;margin-bottom:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+.contact-btns{display:flex;gap:0.4rem}
+.contact-btn{flex:1;padding:0.5rem;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;border:2px solid;background:transparent;transition:all 0.15s;font-family:'Barlow',sans-serif;text-align:center;text-decoration:none;display:block}
+.contact-btn.tg{border-color:#229ED9;color:#229ED9}
+.contact-btn.tg:hover{background:rgba(34,158,217,0.1)}
+.contact-btn.dc{border-color:#5865F2;color:#5865F2}
+.contact-btn.dc:hover{background:rgba(88,101,242,0.1)}
+.contact-btn.snap{border-color:#FFFC00;color:#FFFC00}
+.contact-btn.snap:hover{background:rgba(255,252,0,0.1)}
+.contact-btn.ig{border-color:#E1306C;color:#E1306C}
+.contact-btn.ig:hover{background:rgba(225,48,108,0.1)}
+
+/* LISTINGS */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.25rem;overflow-x:auto}
+.tab{padding:0.65rem 1.1rem;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#aaa;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--purple-light);border-bottom-color:var(--purple)}
+.listings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+.listing-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.lc-img{aspect-ratio:1/1;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden}
+.lc-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.lc-status{position:absolute;bottom:8px;left:8px;font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:900;letter-spacing:0.06em;padding:3px 8px;border-radius:4px;text-transform:uppercase}
+.ls-active{background:rgba(62,207,142,0.2);color:#3ecf8e;border:1px solid #3ecf8e}
+.ls-sold{background:rgba(255,59,59,0.2);color:#ff3b3b;border:1px solid #ff3b3b}
+.ls-reserved{background:rgba(37,99,235,0.2);color:#60a5fa;border:1px solid #60a5fa}
+.lc-info{padding:0.75rem}
+.lc-brand{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--purple-light)}
+.lc-name{font-weight:700;font-size:0.9rem;margin-bottom:0.3rem}
+.lc-price{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--purple-light);margin-bottom:0.5rem}
+.lc-actions{display:flex;gap:0.4rem}
+.la{flex:1;padding:0.4rem;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:0.75rem;font-weight:700;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:transparent;color:#aaa;transition:all 0.15s}
+.la:hover{color:var(--white);border-color:var(--white)}
+.la-del{color:#ff3b3b!important;border-color:#ff3b3b!important}
+.la-del:hover{background:rgba(255,59,59,0.1)!important}
+.la-sold{color:#3ecf8e!important;border-color:#3ecf8e!important}
+.la-sold:hover{background:rgba(62,207,142,0.1)!important}
+.la-reserve{color:#60a5fa!important;border-color:#60a5fa!important}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:2px solid var(--purple);border-radius:var(--radius-lg);max-width:700px;width:100%;max-height:92vh;overflow-y:auto}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr}
+.modal-img-wrap{background:#1a1a2e;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:6rem;border-radius:var(--radius-lg) 0 0 var(--radius-lg);position:relative;overflow:hidden}
+.modal-img-wrap img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.modal-img-emoji{position:relative;z-index:1}
+.modal-body{padding:1.5rem;display:flex;flex-direction:column}
+.modal-close{background:none;border:none;color:#aaa;font-size:1.5rem;cursor:pointer;align-self:flex-end;line-height:1;margin-bottom:0.5rem}
+.modal-close:hover{color:#ff3b3b}
+.modal-brand{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--purple-light)}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.04em;line-height:1.1;margin:0.25rem 0}
+.modal-price{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--purple-light);margin:0.25rem 0;line-height:1}
+.modal-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin:0.5rem 0}
+.modal-tag{background:#1f1f1f;border:1px solid var(--border);color:#aaa;font-size:0.75rem;font-weight:700;padding:3px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:0.04em}
+.modal-desc{font-size:0.9rem;color:#aaa;line-height:1.6;margin:0.5rem 0;flex:1}
+.modal-actions{display:flex;flex-direction:column;gap:0.5rem}
+.modal-actions .btn{justify-content:center}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--purple);color:#fff;border:2px solid var(--purple-light);padding:0.75rem 1.25rem;border-radius:var(--radius);font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.04em;z-index:999;transform:translateY(120px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .modal-grid{grid-template-columns:1fr}
+  .modal-img-wrap{border-radius:var(--radius-lg) var(--radius-lg) 0 0;aspect-ratio:4/3}
+  .cart-layout{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .products-grid{grid-template-columns:repeat(2,1fr);gap:0.6rem}
+  .hero-features{gap:0.6rem}
+  .hero-feat{font-size:0.78rem;padding:0.5rem 0.75rem}
+  .filter-row{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}
+}
+@media(max-width:400px){.products-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">B<span>&</span>S <span style="font-size:0.65em;color:#aaa;letter-spacing:0.15em">BUY&SELL</span></div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="showPage('shop')">👟 Boutique</button>
+      <button class="nav-btn" onclick="showPage('sell')">+ Vendre</button>
+      <button class="nav-btn" onclick="showPage('listings')">📦 Mes annonces</button>
+      <button class="nav-btn cart-btn" onclick="showPage('cart')">
+        🛒 Panier <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="nav-btn nav-btn-primary" onclick="showPage('sell')">PUBLIER UNE ANNONCE</button>
+    </div>
+    <button class="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button onclick="showPage('shop');toggleMenu()">👟 Boutique</button>
+  <button onclick="showPage('listings');toggleMenu()">📦 Mes annonces</button>
+  <button onclick="showPage('cart');toggleMenu()">🛒 Panier (<span id="cartCountM">0</span>)</button>
+  <button class="mb-primary" onclick="showPage('sell');toggleMenu()">+ PUBLIER UNE ANNONCE</button>
+</div>
+
+<!-- HERO -->
+<div id="heroSection">
+  <div class="hero">
+    <div class="hero-dots"></div>
+    <div class="hero-dots2"></div>
+    <div class="hero-logo">B<span>&</span>S</div>
+    <div class="hero-sub">BUY &amp; SELL • SNEAKERS</div>
+    <div class="hero-banner">ACHAT <span>•</span> REVENTE <span>•</span> NETTOYAGE</div>
+    <div class="hero-features">
+      <div class="hero-feat"><span class="icon">👟</span> SNEAKERS</div>
+      <div class="hero-feat"><span class="icon">📍</span> FOS / ISTRES / MARTIGUES</div>
+      <div class="hero-feat"><span class="icon">💸</span> RACHAT DE PAIRES</div>
+      <div class="hero-feat"><span class="icon">🔍</span> RECHERCHE SUR DEMANDE</div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn btn-purple" onclick="showPage('shop')">👟 Voir les articles</button>
+      <button class="btn btn-outline" onclick="showPage('sell')">+ Publier une annonce</button>
+    </div>
+    <div class="social-bar">
+      <div class="soc soc-snap"><div class="soc-icon">👻</div>BUY_SELL13</div>
+      <div class="soc soc-ig"><div class="soc-icon">📸</div>BUY.SELL13</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOUTIQUE -->
+<div class="page" id="page-shop">
+  <div class="sec-title">BOUTIQUE <span class="sec-count" id="productCount">0</span></div>
+  <div class="filters-wrap">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Rechercher une paire, une marque..." oninput="filterProducts()">
+      <button onclick="filterProducts()">SEARCH</button>
+    </div>
+    <div class="filter-row" id="catFilters">
+      <button class="filter-chip active" onclick="setFilter('cat','all',this)">Tout</button>
+      <button class="filter-chip" onclick="setFilter('cat','sneakers',this)">👟 Sneakers</button>
+      <button class="filter-chip" onclick="setFilter('cat','hauts',this)">👕 Hauts</button>
+      <button class="filter-chip" onclick="setFilter('cat','bas',this)">👖 Bas</button>
+      <button class="filter-chip" onclick="setFilter('cat','vestes',this)">🧥 Vestes</button>
+      <button class="filter-chip" onclick="setFilter('cat','accessoires',this)">🎒 Accès.</button>
+    </div>
+    <div class="filter-row" id="sizeFilters">
+      <button class="filter-chip active" onclick="setFilter('size','all',this)">Toutes tailles</button>
+      <button class="filter-chip" onclick="setFilter('size','XS',this)">XS</button>
+      <button class="filter-chip" onclick="setFilter('size','S',this)">S</button>
+      <button class="filter-chip" onclick="setFilter('size','M',this)">M</button>
+      <button class="filter-chip" onclick="setFilter('size','L',this)">L</button>
+      <button class="filter-chip" onclick="setFilter('size','XL',this)">XL</button>
+      <button class="filter-chip" onclick="setFilter('size','36',this)">36</button>
+      <button class="filter-chip" onclick="setFilter('size','37',this)">37</button>
+      <button class="filter-chip" onclick="setFilter('size','38',this)">38</button>
+      <button class="filter-chip" onclick="setFilter('size','39',this)">39</button>
+      <button class="filter-chip" onclick="setFilter('size','40',this)">40</button>
+      <button class="filter-chip" onclick="setFilter('size','41',this)">41</button>
+      <button class="filter-chip" onclick="setFilter('size','42',this)">42</button>
+      <button class="filter-chip" onclick="setFilter('size','43',this)">43</button>
+      <button class="filter-chip" onclick="setFilter('size','44',this)">44</button>
+      <button class="filter-chip" onclick="setFilter('size','45',this)">45</button>
+    </div>
+  </div>
+  <div class="products-grid" id="productsGrid"></div>
+</div>
+
+<!-- VENDRE -->
+<div class="page" id="page-sell">
+  <div class="sell-wrap">
+    <div class="sell-header">
+      <h2>PUBLIER UNE ANNONCE</h2>
+      <p style="color:var(--gray)">Remplis les infos pour mettre ton article en vente</p>
+    </div>
+
+    <div class="form-card">
+      <h3>📸 PHOTOS</h3>
+      <div class="photo-zone" id="photoZone">
+        <input type="file" accept="image/*" multiple onchange="handlePhotos(event)">
+        <div class="pz-icon">📷</div>
+        <p>Clique ou glisse tes photos ici</p>
+        <p style="font-size:0.8rem;margin-top:0.2rem"><strong>Jusqu'à 8 photos</strong> — la 1ère = photo principale</p>
+      </div>
+      <div class="photo-previews" id="photoPreviews"></div>
+    </div>
+
+    <div class="form-card">
+      <h3>📝 INFOS DE L'ARTICLE</h3>
+      <div class="fg">
+        <label>Titre de l'annonce *</label>
+        <input type="text" id="itemTitle" placeholder="ex: Nike Air Jordan 1 Court Purple — 42" maxlength="80" oninput="updatePreview()">
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Catégorie *</label>
+          <select id="itemCat" onchange="updateSizes()">
+            <option value="">Choisir...</option>
+            <option value="sneakers">👟 Sneakers</option>
+            <option value="hauts">👕 Hauts</option>
+            <option value="bas">👖 Bas</option>
+            <option value="vestes">🧥 Vestes</option>
+            <option value="accessoires">🎒 Accessoires</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Marque</label>
+          <input type="text" id="itemBrand" placeholder="Nike, Jordan, Adidas...">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Description</label>
+        <textarea id="itemDesc" placeholder="Détails, coloris, état, accessoires inclus..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>📏 TAILLE</h3>
+      <div class="size-grid" id="sizeGrid">
+        <div style="color:var(--gray);font-size:0.85rem">Choisir une catégorie d'abord</div>
+      </div>
+      <input type="hidden" id="selectedSize">
+    </div>
+
+    <div class="form-card">
+      <h3>✨ ÉTAT</h3>
+      <div class="cond-grid">
+        <div class="cond-opt" onclick="selCond('Neuf avec étiquette',this)">
+          <div class="cond-title">🏷️ Neuf avec étiquette</div>
+          <div class="cond-desc">Jamais porté, étiquette d'origine</div>
+        </div>
+        <div class="cond-opt" onclick="selCond('Neuf sans étiquette',this)">
+          <div class="cond-title">✨ Neuf sans étiquette</div>
+          <div class="cond-desc">Jamais porté</div>
+        </div>
+        <div class="cond-opt" onclick="selCond('Très bon état',this)">
+          <div class="cond-title">👌 Très bon état</div>
+          <div class="cond-desc">1–2 fois, impeccable</div>
+        </div>
+        <div class="cond-opt" onclick="selCond('Bon état',this)">
+          <div class="cond-title">👍 Bon état</div>
+          <div class="cond-desc">Légères marques d'usure</div>
+        </div>
+      </div>
+      <input type="hidden" id="selectedCond">
+    </div>
+
+    <div class="form-card">
+      <h3>💰 PRIX</h3>
+      <div class="form-row">
+        <div class="fg">
+          <label>Prix de vente (€) *</label>
+          <input type="number" id="itemPrice" placeholder="0" min="0" step="1" oninput="updatePreview()">
+        </div>
+        <div class="fg">
+          <label>Frais de port</label>
+          <select id="itemShipping" onchange="updatePreview()">
+            <option value="0">🎁 Offerts par le vendeur</option>
+            <option value="2.5">✉️ Lettre suivie — 2,50€</option>
+            <option value="4.5">📦 Colissimo — 4,50€</option>
+            <option value="6">🏪 Mondial Relay — 6€</option>
+          </select>
+        </div>
+      </div>
+      <div class="price-preview">
+        <div class="pr-row"><span>Prix article</span><span id="pv-price">0€</span></div>
+        <div class="pr-row"><span>Frais de port</span><span id="pv-ship">offerts</span></div>
+        <div class="pr-row total"><span>Total acheteur</span><span class="amt" id="pv-total">0€</span></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>📢 DIFFUSION</h3>
+      <div class="diff-row">
+        <button class="diff-btn tg" id="btnTg" onclick="toggleDiff('tg')">📣 Telegram</button>
+        <button class="diff-btn dc" id="btnDc" onclick="toggleDiff('dc')">💬 Discord</button>
+        <button class="diff-btn" id="btnSnap" onclick="toggleDiff('snap')">👻 Snapchat</button>
+        <button class="diff-btn" id="btnIg" onclick="toggleDiff('ig')">📸 Instagram</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitListing()">🚀 PUBLIER L'ANNONCE</button>
+  </div>
+</div>
+
+<!-- PANIER -->
+<div class="page" id="page-cart">
+  <div class="sec-title">MON PANIER</div>
+  <div class="cart-layout">
+    <div class="cart-items-list" id="cartItems"></div>
+    <div class="cart-summary-box">
+      <div class="csb-title">RÉCAPITULATIF</div>
+      <div class="csb-row"><span>Articles</span><span id="s-count">0</span></div>
+      <div class="csb-row"><span>Sous-total</span><span id="s-sub">0€</span></div>
+      <div class="csb-row"><span>Livraison</span><span id="s-ship">—</span></div>
+      <div class="csb-total"><span>TOTAL</span><span id="s-total">0€</span></div>
+      <button class="order-btn" onclick="checkout()">COMMANDER →</button>
+      <div class="contact-box">
+        <p>Commander via :</p>
+        <div class="contact-btns">
+          <a class="contact-btn tg" href="#">TG</a>
+          <a class="contact-btn dc" href="#">DC</a>
+          <a class="contact-btn snap" href="#">👻</a>
+          <a class="contact-btn ig" href="#">📸</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MES ANNONCES -->
+<div class="page" id="page-listings">
+  <div class="sec-title" style="justify-content:space-between;display:flex">
+    <span>MES ANNONCES</span>
+    <button class="btn btn-purple" onclick="showPage('sell')" style="font-size:0.8rem;padding:0.45rem 0.9rem">+ NOUVELLE</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="filterListings('all',this)">Toutes</button>
+    <button class="tab" onclick="filterListings('active',this)">En vente</button>
+    <button class="tab" onclick="filterListings('sold',this)">Vendues</button>
+    <button class="tab" onclick="filterListings('reserved',this)">Réservées</button>
+  </div>
+  <div class="listings-grid" id="listingsGrid"></div>
+</div>
+
+<!-- MODAL PRODUIT -->
+<div class="modal-overlay" id="productModal" onclick="closeModalOverlay(event)">
+  <div class="modal">
+    <div class="modal-grid">
+      <div class="modal-img-wrap" id="modalImg"></div>
+      <div class="modal-body">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-brand" id="modalBrand"></div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-price" id="modalPrice"></div>
+        <div class="modal-tags" id="modalTags"></div>
+        <div class="modal-desc" id="modalDesc"></div>
+        <div class="modal-actions" id="modalActions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SIZES={
+  sneakers:['35','36','37','38','39','40','41','42','43','44','45','46','47'],
+  hauts:['XS','S','M','L','XL','XXL','XXXL'],
+  bas:['XS','S','M','L','XL','36','38','40','42','44','46'],
+  vestes:['XS','S','M','L','XL','XXL'],
+  accessoires:['Unique','S/M','M/L','L/XL']
+};
+const EMOJIS={sneakers:'👟',hauts:'👕',bas:'👖',vestes:'🧥',accessoires:'🎒'};
+let diff={tg:false,dc:false,snap:false,ig:false};
+let activeF={cat:'all',size:'all'};
+let listF='all';
+let cart=[];
+let modalOpen=null;
+
+let catalog=[
+  {id:1,title:'Air Jordan 1 Retro High Court Purple',brand:'Jordan',cat:'sneakers',size:'42',cond:'Très bon état',price:185,shipping:4.5,emoji:'👟',desc:'AJ1 Court Purple portées 3 fois, semelle impeccable. Boîte originale incluse. Coloris icon.',status:'active',img:null},
+  {id:2,title:'Nike Air Force 1 Triple White',brand:'Nike',cat:'sneakers',size:'41',cond:'Neuf avec étiquette',price:90,shipping:0,emoji:'👟',desc:'AF1 neuves jamais portées, toujours dans la boîte. Cadeau non déballé.',status:'active',img:null},
+  {id:3,title:'Hoodie Supreme Box Logo Black',brand:'Supreme',cat:'hauts',size:'L',cond:'Neuf avec étiquette',price:250,shipping:0,emoji:'👕',desc:'Supreme FW22 jamais porté. 100% authentique, facture disponible.',status:'active',img:null},
+  {id:4,title:'New Balance 550 ALD Ecru',brand:'New Balance',cat:'sneakers',size:'43',cond:'Neuf avec étiquette',price:310,shipping:4.5,emoji:'👟',desc:'Collab Aimé Leon Dore x NB 550. DS, jamais portées, avec boîte.',status:'sold',img:null},
+  {id:5,title:'Jean Carhartt WIP Double Knee',brand:'Carhartt',cat:'bas',size:'L',cond:'Bon état',price:55,shipping:2.5,emoji:'👖',desc:'Carhartt stone wash bleu. Légères marques aux genoux normales pour ce modèle.',status:'active',img:null},
+  {id:6,title:'Veste Bomber Stüssy 8-Ball',brand:'Stüssy',cat:'vestes',size:'M',cond:'Très bon état',price:140,shipping:0,emoji:'🧥',desc:'Polaire Stüssy motif 8-ball. Taille M, très peu portée. Tissu chaud.',status:'reserved',img:null},
+  {id:7,title:'Sacoche Patta Ripstop Beige',brand:'Patta',cat:'accessoires',size:'Unique',cond:'Neuf avec étiquette',price:75,shipping:2.5,emoji:'🎒',desc:'Sacoche Patta jamais utilisée, grand compartiment, bandoulière réglable.',status:'active',img:null},
+  {id:8,title:'Nike Dunk Low Panda',brand:'Nike',cat:'sneakers',size:'40',cond:'Bon état',price:110,shipping:4.5,emoji:'👟',desc:'Dunk Low Black/White portées ~10 fois. Semelle propre, pas de jaunissement.',status:'active',img:null},
+  {id:9,title:'Casquette Corteiz Guerillaz',brand:'Corteiz',cat:'accessoires',size:'Unique',cond:'Neuf avec étiquette',price:95,shipping:2.5,emoji:'🧢',desc:'Cappy CRTZ noir broderie verte. Drop récent, très rare.',status:'active',img:null},
+  {id:10,title:'Palace Tri-Ferg Tee Noir',brand:'Palace',cat:'hauts',size:'M',cond:'Très bon état',price:45,shipping:2.5,emoji:'👕',desc:'Tee Palace logo central noir. Tissu lourd premium. Lavage parfait.',status:'active',img:null},
+];
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  const h=document.getElementById('heroSection');
+  h.style.display=(p==='shop')?'block':'none';
+  document.getElementById('page-'+p).classList.add('active');
+  if(p==='shop')renderProducts();
+  if(p==='cart')renderCart();
+  if(p==='listings')renderListings();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toggleMenu(){
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+function toast(msg,duration=2800){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+function setFilter(type,val,el){
+  activeF[type]=val;
+  document.getElementById(type==='cat'?'catFilters':'sizeFilters').querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderProducts();
+}
+
+function filterProducts(){renderProducts();}
+
+function renderProducts(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const items=catalog.filter(p=>{
+    const mc=activeF.cat==='all'||p.cat===activeF.cat;
+    const ms=activeF.size==='all'||p.size===activeF.size;
+    const mq=!q||(p.title+p.brand).toLowerCase().includes(q);
+    return mc&&ms&&mq;
+  });
+  document.getElementById('productCount').textContent=items.length;
+  const g=document.getElementById('productsGrid');
+  if(!items.length){g.innerHTML='<div class="empty-state"><div class="e-icon">🔍</div><p>Aucun article trouvé</p></div>';return;}
+  g.innerHTML=items.map(p=>{
+    const inCart=cart.find(c=>c.id===p.id);
+    const sold=p.status==='sold',res=p.status==='reserved';
+    const imgTag=p.img?`<img src="${p.img}" alt="${p.title}">`:'';
+    return`<div class="product-card" onclick="openModal(${p.id})">
+      <div class="product-img">
+        <div class="product-img-bg">${p.emoji}</div>
+        ${imgTag}
+        ${!p.img?`<span style="position:relative;z-index:1;font-size:3.5rem">${p.emoji}</span>`:''}
+        ${sold?'<span class="badge badge-sold">VENDU</span>':res?'<span class="badge badge-res">RÉSERVÉ</span>':'<span class="badge badge-dispo">DISPO ✓</span>'}
+        ${p.cond==='Neuf avec étiquette'||p.cond==='Neuf sans étiquette'?'<span class="badge badge-new" style="top:8px;right:8px;left:auto">NEW</span>':''}
+        <button class="fav-btn" onclick="event.stopPropagation();this.classList.toggle(\'active\');this.textContent=this.classList.contains(\'active\')?\'❤️\':\'🤍\'" title="Favoris">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">${p.brand}</div>
+        <div class="product-name">${p.title}</div>
+        <div class="product-chips">
+          <span class="chip">${p.size}</span>
+          <span class="chip">${p.cond}</span>
+          ${p.shipping===0?'<span class="chip" style="color:#3ecf8e;border-color:#3ecf8e22">📦 offert</span>':''}
+        </div>
+        <div class="product-price-row">
+          <span class="product-price">${p.price}€</span>
+          <button class="add-btn" ${sold||res||inCart?'disabled':''} onclick="event.stopPropagation();addToCart(${p.id})">${inCart?'✓ Ajouté':'+ Panier'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addToCart(id){
+  if(cart.find(c=>c.id===id))return;
+  const p=catalog.find(x=>x.id===id);
+  if(!p||p.status!=='active')return;
+  cart.push({...p});
+  updateCartBadge();
+  toast('✅ '+p.title.substring(0,30)+'... ajouté !');
+  renderProducts();
+}
+
+function updateCartBadge(){
+  const n=cart.length;
+  const c=document.getElementById('cartCount');
+  c.textContent=n;c.style.display=n?'flex':'none';
+  document.getElementById('cartCountM').textContent=n;
+}
+
+function renderCart(){
+  const el=document.getElementById('cartItems');
+  if(!cart.length){
+    el.innerHTML='<div style="text-align:center;padding:3rem;color:var(--gray)"><div style="font-size:3rem;margin-bottom:1rem">🛒</div><p style="font-weight:700;font-size:1.1rem">Panier vide</p><button class="btn btn-purple" onclick="showPage(\'shop\')" style="margin-top:1rem">Voir les articles</button></div>';
+    ['s-count','s-sub','s-ship','s-total'].forEach(id=>document.getElementById(id).textContent='0');
+    return;
+  }
+  el.innerHTML=cart.map(p=>{
+    const imgTag=p.img?`<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover">`:'';
+    return`<div class="cart-item">
+      <div class="cart-item-img">${p.img?imgTag:p.emoji}</div>
+      <div class="cart-item-info">
+        <div class="ci-brand">${p.brand}</div>
+        <div class="ci-name">${p.title}</div>
+        <div class="ci-meta">Taille ${p.size} • ${p.cond}</div>
+        <div class="ci-price">${p.price}€</div>
+      </div>
+      <button class="cart-rm" onclick="removeFromCart(${p.id})" title="Retirer">✕</button>
+    </div>`;
+  }).join('');
+  const sub=cart.reduce((s,p)=>s+p.price,0);
+  const ship=cart.reduce((s,p)=>s+p.shipping,0);
+  document.getElementById('s-count').textContent=cart.length+' article'+(cart.length>1?'s':'');
+  document.getElementById('s-sub').textContent=sub+'€';
+  document.getElementById('s-ship').textContent=ship?ship+'€':'Offerte';
+  document.getElementById('s-total').textContent=(sub+ship)+'€';
+}
+
+function removeFromCart(id){
+  cart=cart.filter(c=>c.id!==id);
+  updateCartBadge();renderCart();renderProducts();
+  toast('Article retiré du panier');
+}
+
+function checkout(){
+  if(!cart.length)return;
+  toast('🎉 Commande confirmée ! Ton vendeur va te contacter.');
+  cart=[];updateCartBadge();renderCart();
+}
+
+function renderListings(f){
+  f=f||listF;listF=f;
+  const g=document.getElementById('listingsGrid');
+  const items=catalog.filter(p=>f==='all'||p.status===f);
+  if(!items.length){g.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="e-icon">📦</div><p>Aucune annonce ici</p></div>';return;}
+  g.innerHTML=items.map(p=>{
+    const imgTag=p.img?`<img src="${p.img}" alt="${p.title}">`:'';
+    return`<div class="listing-card">
+      <div class="lc-img">
+        ${p.img?imgTag:''}
+        <span ${p.img?'style="position:relative;z-index:1"':''}>${p.img?'':p.emoji}</span>
+        <div class="lc-status ${p.status==='active'?'ls-active':p.status==='sold'?'ls-sold':'ls-reserved'}">${p.status==='active'?'● EN VENTE':p.status==='sold'?'● VENDU':'● RÉSERVÉ'}</div>
+      </div>
+      <div class="lc-info">
+        <div class="lc-brand">${p.brand}</div>
+        <div class="lc-name">${p.title}</div>
+        <div style="display:flex;gap:0.3rem;margin-bottom:0.4rem"><span class="chip">${p.size}</span></div>
+        <div class="lc-price">${p.price}€</div>
+        <div class="lc-actions">
+          <button class="la" onclick="editItem(${p.id})">✏️</button>
+          ${p.status==='active'?`<button class="la la-reserve" onclick="markStatus(${p.id},'reserved')">🔵</button><button class="la la-sold" onclick="markStatus(${p.id},'sold')">✓ VENDU</button>`:''}
+          <button class="la la-del" onclick="deleteItem(${p.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterListings(f,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderListings(f);
+}
+
+function markStatus(id,status){
+  const p=catalog.find(x=>x.id===id);
+  if(p){p.status=status;toast(status==='sold'?'✅ Marqué comme vendu !':'🔵 Marqué comme réservé !');}
+  renderListings();
+}
+
+function deleteItem(id){
+  catalog=catalog.filter(x=>x.id!==id);
+  toast('🗑 Annonce supprimée');renderListings();
+}
+
+function editItem(id){showPage('sell');toast('📝 Mode modification...');}
+
+function openModal(id){
+  const p=catalog.find(x=>x.id===id);if(!p)return;
+  modalOpen=p;
+  const imgWrap=document.getElementById('modalImg');
+  if(p.img){
+    imgWrap.innerHTML=`<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"><span class="modal-img-emoji" style="position:relative;z-index:1;opacity:0">${p.emoji}</span>`;
+  } else {
+    imgWrap.innerHTML=`<span class="modal-img-emoji">${p.emoji}</span>`;
+  }
+  document.getElementById('modalBrand').textContent=p.brand+' • '+p.cat.toUpperCase();
+  document.getElementById('modalTitle').textContent=p.title;
+  document.getElementById('modalPrice').textContent=p.price+'€';
+  document.getElementById('modalTags').innerHTML=
+    `<span class="modal-tag">${p.size}</span><span class="modal-tag">${p.cond}</span><span class="modal-tag">${p.shipping?'Port '+p.shipping+'€':'Port offert 🎁'}</span><span class="modal-tag">${p.status==='active'?'✓ DISPO':p.status==='sold'?'VENDU':'RÉSERVÉ'}</span>`;
+  document.getElementById('modalDesc').textContent=p.desc;
+  const sold=p.status==='sold',res=p.status==='reserved',inCart=cart.find(c=>c.id===p.id);
+  document.getElementById('modalActions').innerHTML=sold?
+    `<div style="text-align:center;color:#ff3b3b;font-weight:700;font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:0.05em">ARTICLE VENDU</div>`:
+    res?`<div style="text-align:center;color:#60a5fa;font-weight:700;font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:0.05em">ARTICLE RÉSERVÉ</div>`:
+    `<button class="btn btn-purple" onclick="addToCart(${p.id});closeModal()" style="justify-content:center" ${inCart?'disabled':''}>${inCart?'✓ DANS LE PANIER':'🛒 AJOUTER AU PANIER'}</button>
+     <button class="btn btn-outline" onclick="closeModal()" style="justify-content:center">CONTINUER</button>`;
+  document.getElementById('productModal').classList.add('open');
+}
+
+function closeModalOverlay(e){if(e.target===document.getElementById('productModal'))closeModal();}
+function closeModal(){document.getElementById('productModal').classList.remove('open');}
+
+function updateSizes(){
+  const cat=document.getElementById('itemCat').value;
+  document.getElementById('selectedSize').value='';
+  const g=document.getElementById('sizeGrid');
+  if(!cat){g.innerHTML='<div style="color:var(--gray);font-size:0.85rem">Choisir une catégorie d\'abord</div>';return;}
+  g.innerHTML=SIZES[cat].map(s=>`<div class="size-opt" onclick="selSize('${s}',this)">${s}</div>`).join('');
+}
+
+function selSize(s,el){
+  document.querySelectorAll('.size-opt').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('selectedSize').value=s;
+}
+
+function selCond(c,el){
+  document.querySelectorAll('.cond-opt').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('selectedCond').value=c;
+}
+
+function updatePreview(){
+  const price=parseFloat(document.getElementById('itemPrice').value)||0;
+  const ship=parseFloat(document.getElementById('itemShipping').value)||0;
+  document.getElementById('pv-price').textContent=price+'€';
+  document.getElementById('pv-ship').textContent=ship?ship+'€':'offerts';
+  document.getElementById('pv-total').textContent=(price+ship)+'€';
+}
+
+function toggleDiff(k){
+  diff[k]=!diff[k];
+  const btn=document.getElementById('btn'+k.charAt(0).toUpperCase()+k.slice(1));
+  btn.classList.toggle('on',diff[k]);
+}
+
+let uploadedImgs=[];
+function handlePhotos(e){
+  const files=Array.from(e.target.files).slice(0,8);
+  const prev=document.getElementById('photoPreviews');
+  prev.innerHTML='';uploadedImgs=[];
+  files.forEach((f,i)=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      uploadedImgs[i]=ev.target.result;
+      const img=document.createElement('img');
+      img.src=ev.target.result;img.className='photo-preview';
+      prev.appendChild(img);
+    };r.readAsDataURL(f);
+  });
+  document.querySelector('.photo-zone p').innerHTML=`<strong>${files.length} photo${files.length>1?'s':''} sélectionnée${files.length>1?'s':''}</strong>`;
+}
+
+function submitListing(){
+  const title=document.getElementById('itemTitle').value.trim();
+  const cat=document.getElementById('itemCat').value;
+  const brand=document.getElementById('itemBrand').value.trim()||'Sans marque';
+  const price=parseFloat(document.getElementById('itemPrice').value);
+  const size=document.getElementById('selectedSize').value;
+  const cond=document.getElementById('selectedCond').value||document.querySelector('#selectedCond').value;
+  const condVal=document.querySelector('.cond-opt.sel')?document.querySelector('.cond-opt.sel .cond-title').textContent.replace(/^[^ ]+ /,''):'';
+
+  if(!title){toast('⚠️ Ajoute un titre !');return;}
+  if(!cat){toast('⚠️ Choisis une catégorie !');return;}
+  if(!price||price<=0){toast('⚠️ Indique un prix valide !');return;}
+  if(!size){toast('⚠️ Sélectionne une taille !');return;}
+  if(!condVal&&!document.querySelector('.cond-opt.sel')){toast('⚠️ Sélectionne l\'état !');return;}
+
+  const newItem={
+    id:Date.now(),title,brand,cat,size,
+    cond:condVal||'Bon état',
+    price,
+    shipping:parseFloat(document.getElementById('itemShipping').value)||0,
+    emoji:EMOJIS[cat]||'📦',
+    desc:document.getElementById('itemDesc').value||'Aucune description.',
+    status:'active',
+    img:uploadedImgs[0]||null
+  };
+  catalog.unshift(newItem);
+
+  const platforms=Object.entries(diff).filter(([k,v])=>v).map(([k])=>k.toUpperCase());
+  let msg='✅ ANNONCE PUBLIÉE !';
+  if(platforms.length)msg+=' Partagée sur '+platforms.join(', ')+' 🚀';
+  toast(msg,3500);
+
+  // reset
+  document.getElementById('page-sell').querySelectorAll('input[type=text],input[type=number],textarea,select').forEach(el=>el.value='');
+  document.querySelectorAll('.cond-opt,.size-opt').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('photoPreviews').innerHTML='';
+  uploadedImgs=[];
+  document.querySelector('.photo-zone p').textContent='Clique ou glisse tes photos ici';
+  updatePreview();
+  Object.keys(diff).forEach(k=>{diff[k]=false;const b=document.getElementById('btn'+k.charAt(0).toUpperCase()+k.slice(1));if(b)b.classList.remove('on');});
+
+  setTimeout(()=>showPage('listings'),700);
+}
+
+showPage('shop');
+</script>
+</body>
+</html>
